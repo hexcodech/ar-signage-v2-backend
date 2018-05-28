@@ -6,7 +6,7 @@ const config = require('./config.json');
 
 module.exports = class App {
     constructor() {
-        this.mqtt = Mqtt.connect('mqtt://localhost');
+        this.mqtt = Mqtt.connect(config.mqttServer);
         this.mqttEvents();
 
         this.express = Express();
