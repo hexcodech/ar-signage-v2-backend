@@ -1,0 +1,16 @@
+{
+  "name": "ar-signage-v2-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hexcodech/ar-signage-v2-backend",
+  "author": "Marc Berchtold <me@echolot.io>",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "jsonfile": "^4.0.0",
+    "mqtt": "^2.18.0"
+  }
+}
