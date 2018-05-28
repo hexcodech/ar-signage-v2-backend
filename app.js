@@ -49,6 +49,8 @@ module.exports = class App {
                             this.mqtt.publish(`ar-signage/client/${messageObject.value.uuid}/mediacacheurl`, JSON.stringify({
                                 value: `${config.bindingIP}:${config.bindingPort}/mediaCache`
                             }), {retain: true});
+                        } else {
+                            // TODO: Create empty object in json
                         }
                     });
                 }
