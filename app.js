@@ -94,16 +94,16 @@ module.exports = class App {
                 }
                 break;
             case topic.match(/^ar-signage\/.+\/timer\/setseconds$/g):
-                let roomname = topic.split(/[\/\/]/g)[1];
-                this.timers[roomname].seconds = messageObject.value;
+                const roomname = topic.split(/[\/\/]/g)[1];
+                const value = parseInt(messageObject.value, 10);
+                this.timers[roomname].originalSeconds = value;
+                this.timers[roomname].seconds = value;
                 break;
             case topic.match(/^ar-signage\/.+\/timer\/control$/g):
-                let roomname = topic.split(/[\/\/]/g)[1];
+                const roomname = topic.split(/[\/\/]/g)[1];
                 switch (messageObject.value) {
                     case 'START':
                         if (this.timers[roomname].seconds > 0) {
-                            this.timers[roomname].originalSeconds = this.timers[roomname].seconds;
-
                             if (this.timers[roomname].interval) {
                                 clearInterval(this.timers[roomname].interval);
                             }
@@ -117,6 +117,17 @@ module.exports = class App {
                                     clearInterval(this.timers[roomname].interval);
                                 }
                             }, 1000);
+                        }
+                        break;
+                    case 'RESET':
+                        this.timers[roomname].seconds = this.timers[roomname].originalSeconds;
+                        if (this.timers[roomname].interval) {
+                            clearInterval(this.timers[roomname].interval);
+                        }
+                        break;
+                    case 'PAUSE':
+                        if (this.timers[roomname].interval) {
+                            clearInterval(this.timers[roomname].interval);
                         }
                         break;
                 }
