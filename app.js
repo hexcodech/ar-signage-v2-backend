@@ -117,6 +117,9 @@ module.exports = class App {
                 const value = parseInt(messageObject.value, 10);
                 this.timers[roomname].originalSeconds = value;
                 this.timers[roomname].seconds = value;
+                this.mqtt.publish(`ar-signage/${roomname}/timer/seconds`, JSON.stringify({
+                    value: this.timers[roomname].seconds
+                }), {retain: true});
                 break;
             case topic.match(/^ar-signage\/.+\/timer\/control$/g) && topic.match(/^ar-signage\/.+\/timer\/control$/g).length > 0:
                 roomname = topic.split(/[\/\/]/g)[1];
@@ -143,6 +146,9 @@ module.exports = class App {
                         if (this.timers[roomname].interval) {
                             clearInterval(this.timers[roomname].interval);
                         }
+                        this.mqtt.publish(`ar-signage/${roomname}/timer/seconds`, JSON.stringify({
+                            value: this.timers[roomname].seconds
+                        }), {retain: true});
                         break;
                     case 'PAUSE':
                         if (this.timers[roomname].interval) {
