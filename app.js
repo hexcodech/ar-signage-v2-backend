@@ -91,9 +91,10 @@ module.exports = class App {
                             console.log(`- Undefined client ${messageObject.value.uuid} discovered! Adding template entry to clients.json`);
                             obj[messageObject.value.uuid] = {};
                             obj[messageObject.value.uuid].roomname = 'default';
-                            obj[messageObject.value.uuid].clientname = 'undefinedClient' + Math.random()*10000;
-                            Jsonfile.writeFile(clientsJsonFilePath, obj, (err) => {
-                                console.error(`Error creating empty client object in json: ${err}`);
+                            obj[messageObject.value.uuid].clientname = 'undefinedClient' + Math.floor(Math.random()*10000);
+                            Jsonfile.writeFile(clientsJsonFilePath, obj, {spaces: 2}, (err) => {
+                                if (err)
+                                    console.error(`Error creating empty client object in json: ${err}`);
                             });
                             this.mqtt.publish(`ar-signage/client/${messageObject.value.uuid}/roomname`, JSON.stringify({
                                 value: obj[messageObject.value.uuid].roomname
