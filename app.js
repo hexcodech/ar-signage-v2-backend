@@ -1,3 +1,5 @@
+const Fs = require('fs');
+const Path = require('path');
 const Express = require('express');
 const Mqtt = require('mqtt');
 const Jsonfile = require('jsonfile');
@@ -41,6 +43,14 @@ module.exports = class App {
     routes() {
         console.log(`--- Registering routes & middlewares`);
         this.express.use(Cors());
+        this.express.get('/mediaList', (req, res) => {
+            this.diretoryTreeToObj(Path.join(__dirname, 'media'), (err, result) => {
+                if (err)
+                    res.status(500).end('Failed getting directory tree');
+
+                res.json(result);
+            });
+        });
         this.express.use('/mediaCache', Express.static(__dirname + '/media'));
         this.express.use('/rooms', Express.static(__dirname + '/rooms.json'));
         this.express.use('/clients', Express.static(__dirname + '/clients.json'));
@@ -105,6 +115,9 @@ module.exports = class App {
                     this.mqtt.publish(`ar-signage/dashboard/mediacacheurl`, JSON.stringify({
                         value: `http://${config.bindingIP}:${config.bindingPort}/mediaCache`
                     }));
+                    this.mqtt.publish(`ar-signage/dashboard/medialisturl`, JSON.stringify({
+                        value: `http://${config.bindingIP}:${config.bindingPort}/mediaList`
+                    }));
                     this.mqtt.publish(`ar-signage/dashboard/roomsurl`, JSON.stringify({
                         value: `http://${config.bindingIP}:${config.bindingPort}/rooms`
                     }));
@@ -159,5 +172,43 @@ module.exports = class App {
                 }
                 break;
         }
+    }
+
+    diretoryTreeToObj(dir, done) {
+        let results = [];
+        Fs.readdir(dir, (err, list) => {
+            if (err)
+                return done(err);
+
+            let pending = list.length;
+
+            if (!pending)
+                return done(null, {name: Path.basename(dir), type: 'folder', children: results});
+
+            list.forEach((file) => {
+                file = Path.resolve(dir, file);
+                Fs.stat(file, (err, stat) => {
+                    if (stat && stat.isDirectory()) {
+                        this.diretoryTreeToObj(file, (err, res) => {
+                            results.push({
+                                name: Path.basename(file),
+                                type: 'folder',
+                                children: res
+                            });
+                            if (!--pending)
+                                done(null, results);
+                        });
+                    }
+                    else {
+                        results.push({
+                            type: 'file',
+                            name: Path.basename(file)
+                        });
+                        if (!--pending)
+                            done(null, results);
+                    }
+                });
+            });
+        });
     }
 }
