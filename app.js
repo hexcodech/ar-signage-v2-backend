@@ -200,10 +200,12 @@ module.exports = class App {
                         });
                     }
                     else {
-                        results.push({
-                            type: 'file',
-                            name: Path.basename(file)
-                        });
+                        if (Path.basename(file).charAt(0) !== '.') {
+                            results.push({
+                                type: 'file',
+                                name: Path.basename(file)
+                            });
+                        }
                         if (!--pending)
                             done(null, results);
                     }
